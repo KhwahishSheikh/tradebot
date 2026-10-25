@@ -1,0 +1,8 @@
+# Copy to config/local.yaml (gitignored) and edit. Overrides config/default.yaml.
+mode: paper                  # stays paper until the Ticket 12 checklist is all green
+account:
+  capital_inr: 100000        # paper capital; set to your planned live capital for realistic sizing
+crypto:
+  usd_inr: 88.0              # Delta India conversion rate (check your wallet)
+telegram:
+  allowed_user_ids: []       # your numeric Telegram id, e.g. [123456789]

@@ -1,0 +1,14 @@
+.venv
+.env
+.env.*
+!.env.example
+data
+logs
+reports
+backups
+config/local.yaml
+**/__pycache__
+.pytest_cache
+.ruff_cache
+delta-exchange-mcp
+.claude

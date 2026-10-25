@@ -1,0 +1,167 @@
+# Default configuration. Override locally in config/local.yaml (gitignored),
+# or point TRADEBOT_CONFIG at another YAML file. Secrets live in .env, never here.
+
+mode: paper            # paper | live
+
+account:
+  capital_inr: 100000  # paper capital; in live mode it must be <= live.max_capital_inr
+
+live:
+  # Live mode needs ALL of: mode: live, this exact phrase, and TRADEBOT_ALLOW_LIVE=true in .env
+  confirm: ""          # "I ACCEPT REAL MONEY RISK"
+  max_capital_inr: 25000
+
+risk:                  # hard ceilings are enforced in code (see config.py)
+  max_risk_per_trade_pct: 1.0
+  max_daily_loss_pct: 2.5
+  max_drawdown_pct: 10.0
+  max_open_positions: 3
+  max_consecutive_losses: 3     # then pause new entries for loss_cooldown_hours
+  loss_cooldown_hours: 24
+  max_portfolio_heat_pct: 3.0   # BTC+ETH are ~0.8 correlated: cap their COMBINED risk
+  max_gross_leverage: 2.0       # total notional / equity across all positions
+  max_positions_per_symbol: 1
+  min_liq_buffer: 2.0           # liquidation must be >= 2x further away than the stop
+  max_data_age_bars: 2
+  max_price_drift_pct: 0.5      # live price vs signal entry; beyond = stale signal
+  events_file: config/calendars/events.yaml
+
+crypto:
+  enabled: true
+  base_url: https://api.india.delta.exchange
+  symbols: [BTCUSD, ETHUSD]
+  max_leverage: 3        # hard ceiling 5. Delta DEFAULTS TO 200x: bot sets leverage on every order
+  usd_inr: 88.0          # Delta India conversion rate; update from your wallet (INR / USD balance)
+
+equity:
+  enabled: false         # no Angel One account yet; set true once ANGEL_* keys are in .env
+  broker: angel_one
+  watchlist: [NIFTY, BANKNIFTY]
+
+approval:
+  expiry_minutes:
+    intraday: 5
+    swing: 60
+  # long_term proposals expire at end of the trading day (Ticket 8)
+  max_price_drift_pct: 0.3
+  exit_on_target: auto   # auto | ask
+  auto_approve:
+    enabled: false
+    max_risk_inr: 0
+
+telegram:
+  allowed_user_ids: []   # your numeric Telegram user id(s)
+  require_pin_live: true
+
+timing:
+  nse:
+    holidays_file: config/calendars/nse_holidays.yaml
+    avoid_open_minutes: 15        # no new entries 09:15-09:30 unless the strategy opts in
+    avoid_close_minutes: 15       # no new entries 15:15-15:30 unless the strategy opts in
+    no_new_intraday_after: "14:45"
+    square_off_at: "15:10"        # auto square-off of intraday positions (before broker's own)
+    # Current as of Oct 2026. These have changed several times; recheck against the
+    # broker instrument master (Ticket 3 alerts on mismatch).
+    expiries:
+      - {underlying: NIFTY, cycle: weekly, weekday: tue}
+      - {underlying: NIFTY, cycle: monthly, weekday: tue}
+      - {underlying: BANKNIFTY, cycle: monthly, weekday: tue}
+      - {underlying: STOCKS, cycle: monthly, weekday: tue}
+  crypto:
+    funding_interval_hours: 8     # Delta BTCUSD product spec: rate_exchange_interval=28800s
+    funding_anchor_utc: "00:00"   # 00/08/16 UTC, confirmed from FUNDING:BTCUSD history (`tradebot data verify`)
+    funding_blackout_minutes: 5   # no new entries this close to a funding timestamp
+    low_liquidity_utc:            # heuristic; replace with measured orderbook depth (Ticket 3)
+      - {days: [sat, sun], start: "00:00", end: "24:00"}
+      - {days: [mon, tue, wed, thu, fri], start: "21:00", end: "24:00"}
+    block_new_entries_in_low_liquidity: false   # false = allowed but flagged to strategy/risk
+  availability_ist:               # quiet hours = outside these windows; no proposals sent
+    - {days: [mon, tue, wed, thu, fri], start: "09:00", end: "22:00"}
+    - {days: [sat, sun], start: "10:00", end: "20:00"}
+
+data:
+  db_path: data/market.duckdb
+  delta_rate_per_sec: 5
+  angel_rate_per_sec: 3           # Angel historical API: 3 req/s
+  angel_master_cache: data/angel_master.json
+  angel_client_public_ip: "127.0.0.1"   # must be your registered static IP before live (SEBI)
+  lookback_days: {1m: 7, 5m: 30, 15m: 60, 1h: 365, 1d: 1500}
+
+strategies:
+  min_confidence: 0.6      # proposals below this are logged but never sent
+  min_net_rr: 1.5          # reward:risk after fees + expected funding
+  # regimes: trend-only (every strategy lost in neutral/ranging regimes, both half-years).
+  # Walk-forward Feb 2024-Oct 2026 (out-of-sample): only rsi_pullback held up (+0.31R/trade,
+  # 45 trades: small sample). ema_trend (-0.33R) and donchian (-0.05R) disabled 2026-10-16.
+  crypto:
+    - {name: ema_trend,         timeframe: 1h, max_hold_bars: 120, regimes: [trend_up, trend_down], enabled: false}
+    - {name: donchian_breakout, timeframe: 1h, max_hold_bars: 120, regimes: [trend_up, trend_down], enabled: false}
+    - {name: rsi_pullback,      timeframe: 1h, max_hold_bars: 72,  regimes: [trend_up, trend_down]}
+    - {name: vwap_intraday,     timeframe: 15m, max_hold_bars: 32, enabled: false}  # see study: fees
+
+costs:
+  crypto:
+    taker_fee_pct: 0.05    # Delta BTCUSD spec (maker 0.02)
+    maker_fee_pct: 0.02
+    gst_pct: 18            # GST on exchange fees (India)
+    slippage_pct: 0.02     # per side, conservative for BTC/ETH perps at small size
+
+news:
+  enabled: true
+  db_path: data/news.duckdb
+  classifier: claude          # claude | rules  (rules used automatically if no ANTHROPIC_API_KEY)
+  model: claude-opus-5-5      # $4/$20 per M tokens. claude-haiku-5-5 is ~40x cheaper: your call
+  effort: low                 # classification doesn't need deep reasoning
+  batch_size: 25
+  max_items_per_run: 150      # hard cost cap per run; only NEW, unlabeled items are sent
+  classify_window_hours: 48
+  lookback_hours: 72
+  use_in_signals: true        # confidence modifier only, asymmetric: -0.20..+0.05
+
+execution:
+  db_path: data/execution.db
+  paper_state_file: data/paper_exchange.json
+  max_entry_slippage_pct: 0.10   # entry = IOC limit at live price +/- this; unfilled part cancels
+  stop_trigger: last_traded_price
+  order_retries: 3               # idempotent: re-checks by client_order_id before any resend
+  bracket_retries: 3             # if the exchange-side stop can't be placed: close immediately
+  reconcile_seconds: 120
+
+exits:
+  # Trailing tested on rsi_pullback (Feb 2024-Oct 2026): every variant LOWERED avg R in both
+  # halves (off +0.23R; 1R/1.5ATR +0.10R; 1R/2ATR +0.05R; 1R/3ATR +0.18R). So: off.
+  trailing_enabled: false
+  trail_activate_r: 1.0
+  trail_atr_mult: 2.0
+  extend_min_r: 1.0          # at max hold, ask to extend only if >= +1R; else auto-close
+  extend_hours: 48
+  max_extensions: 1
+  decision_timeout_min: 30   # unanswered question -> CLOSE (the safe default)
+  adverse_funding_pct_day: 0.10
+  review_time_ist: "09:00"
+
+monitoring:
+  heartbeat_file: data/heartbeat.json
+  state_file: data/runtime_state.json
+  tick_seconds: 60             # reconcile + exits + proposal expiry
+  signal_delay_seconds: 75     # evaluate strategies 75s after each 1h bar closes
+  news_minutes: 30
+  summary_time_ist: "21:30"
+  stale_data_hours: 2.5        # no fresh 1h bar for this long -> SAFE MODE (no new entries)
+  max_tick_failures: 3         # exchange/reconcile failing repeatedly -> SAFE MODE
+  watchdog_stale_seconds: 300  # `tradebot watchdog` alerts if the bot stops beating
+  alert_cooldown_min: 10
+
+paper:
+  ledger_path: data/forward.db
+  shadow_disabled_strategies: true   # disabled strategies keep a forward record, never trade
+  min_weeks: 4
+  target_weeks: 8
+  min_forward_trades: 30             # rsi_pullback makes ~1/month: this WILL take long. Honest.
+  uptime_target_pct: 98
+  max_avg_r_gap: 0.30
+  min_decided_pct: 80
+
+logging:
+  dir: logs
+  level: INFO

@@ -1,0 +1,39 @@
+# docker compose up -d                       -> bot + watchdog
+# docker compose --profile dashboard up -d   -> also the dashboard on 127.0.0.1:8501 (SSH tunnel)
+name: tradebot
+
+x-common: &common
+  image: tradebot:latest
+  build: .
+  env_file: .env
+  restart: unless-stopped
+  volumes:
+    - ./data:/app/data
+    - ./logs:/app/logs
+    - ./reports:/app/reports
+    - ./backups:/app/backups
+    - ./config/local.yaml:/app/config/local.yaml:ro
+  logging:
+    driver: json-file
+    options: {max-size: "20m", max-file: "5"}
+
+services:
+  bot:
+    <<: *common
+    command: ["tradebot", "run"]
+    stop_grace_period: 30s          # lets the runtime post "stopped" and close cleanly
+
+  watchdog:
+    <<: *common
+    command: ["sh", "-c", "while true; do tradebot watchdog; sleep 120; done"]
+    healthcheck: {disable: true}
+
+  dashboard:
+    <<: *common
+    image: tradebot-dashboard:latest
+    build: {context: ., args: {EXTRAS: dashboard}}
+    command: ["streamlit", "run", "/app/src/tradebot/monitoring/dashboard.py",
+              "--server.address", "0.0.0.0", "--server.port", "8501", "--server.headless", "true"]
+    ports: ["127.0.0.1:8501:8501"]  # never exposed publicly: reach it via ssh -L 8501:localhost:8501
+    healthcheck: {disable: true}
+    profiles: ["dashboard"]

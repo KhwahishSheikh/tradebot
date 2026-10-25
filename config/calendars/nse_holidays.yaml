@@ -1,0 +1,24 @@
+# NSE equity + equity-derivatives trading holidays (weekdays only).
+# Source: NSE annual holiday circular. Update every December when NSE publishes next year.
+# If a year is missing, the bot treats NSE as CLOSED for that year (fail-safe).
+2026:
+  # 2026-01-15: one broker listed a Maharashtra civic-election closure; not confirmed, left out.
+  - {date: 2026-01-26, name: Republic Day}
+  - {date: 2026-03-03, name: Holi}
+  - {date: 2026-03-26, name: Shri Ram Navami}
+  - {date: 2026-03-31, name: Shri Mahavir Jayanti}
+  - {date: 2026-04-03, name: Good Friday}
+  - {date: 2026-04-14, name: Dr. Baba Saheb Ambedkar Jayanti}
+  - {date: 2026-05-01, name: Maharashtra Day}
+  - {date: 2026-05-28, name: Bakri Id}
+  - {date: 2026-06-26, name: Muharram}
+  - {date: 2026-09-14, name: Ganesh Chaturthi}
+  - {date: 2026-10-02, name: Mahatma Gandhi Jayanti}
+  - {date: 2026-10-20, name: Dussehra}
+  - {date: 2026-11-10, name: Diwali Balipratipada}
+  - {date: 2026-11-24, name: Guru Nanak Jayanti}
+  - {date: 2026-12-25, name: Christmas}
+
+# Special sessions on otherwise-closed days (IST). Muhurat 2026 is Sun 8 Nov; add times once NSE announces.
+special_sessions: []
+#  - {date: 2026-11-08, start: "18:00", end: "19:00", name: Muhurat Trading}

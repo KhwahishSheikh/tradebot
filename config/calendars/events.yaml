@@ -1,0 +1,10 @@
+# High-impact macro events: no NEW entries inside [at - before_min, at + after_min].
+# Times are UTC. Sources: federalreserve.gov FOMC calendar (statement 14:00 ET),
+# bls.gov CPI schedule (08:30 ET). US DST ends 2026-11-01 (ET = UTC-5 after that).
+# Add NSE events (RBI policy, Union Budget, results days) here when equity is enabled.
+events:
+  - {name: FOMC decision,  at: "2026-10-28T18:00:00Z", markets: [crypto_delta], before_min: 120, after_min: 120}
+  - {name: US CPI (Oct),   at: "2026-11-10T13:30:00Z", markets: [crypto_delta], before_min: 60,  after_min: 60}
+  - {name: FOMC decision,  at: "2026-12-09T19:00:00Z", markets: [crypto_delta], before_min: 120, after_min: 120}
+  - {name: US CPI (Nov),   at: "2026-12-10T13:30:00Z", markets: [crypto_delta], before_min: 60,  after_min: 60}
+# Fail-safe: if the last listed event is in the past, `tradebot risk status` warns that this file is stale.
