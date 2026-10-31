@@ -17,6 +17,8 @@ Claude reads the market and your account; **orders only go out through `trade.py
 | `/delta-timemachine` | `timemachine.py` | Replay over real history + 10,000 Monte Carlo paths: target-first vs stop-first |
 | `/delta-alerts` | `alerts.py` | Price alerts (above / below / % move), optional macOS notification |
 | `/delta-news` | `news.py` | CoinDesk / Cointelegraph / Decrypt headlines for your watchlist, HIGH-impact flags |
+| `/delta-analyst` | `analyst.py` | Market health: funding (rank vs 30 days), open interest vs price, basis, order-book depth and slippage |
+| `/delta-whales` | `whales.py` | Big players: large trades now, 5-minute volume bursts, open-interest jumps, funding shifts |
 
 ## Setup
 
@@ -40,6 +42,8 @@ python3 trade.py protect XAUTUSD --stop 3999.7                          # add a 
 python3 timemachine.py BTCUSD buy --stop-pct 0.6 --target-pct 1.2
 python3 alerts.py add BTCUSD below 76000 --note "support break"
 python3 news.py --hours 24
+python3 analyst.py BTCUSD
+python3 whales.py BTCUSD --hours 24
 ```
 
 Market data is public (no keys). Account reads and orders use the keys in `.env`.

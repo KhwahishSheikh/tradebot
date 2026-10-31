@@ -46,9 +46,10 @@ Numbers for risk live in `rules.json`. Change either only with the user, and say
 - `/delta-scanner` scan · `/delta-entry` setups · `/delta-exit` open-trade plan
 - `/delta-risk` PASS/BLOCK · `/delta-budget` size · `/delta-broker` orders (dry-run, user's yes)
 - `/delta-timemachine` replay + Monte Carlo · `/delta-alerts` price alerts · `/delta-news` headlines
+- `/delta-analyst` funding/OI/basis/book health · `/delta-whales` big trades, volume bursts, OI jumps
 
 ## Files
 - `delta_common.py` shared client/indicators · `rules.json` risk rules
-- `scan.py` `entry.py` `exit.py` `risk.py` `size.py` `timemachine.py` `alerts.py` `news.py`
+- `scan.py` `entry.py` `exit.py` `risk.py` `size.py` `timemachine.py` `alerts.py` `news.py` `analyst.py` `whales.py`
 - `trade.py` — the ONLY order script; dry-run unless `--confirm`
 - `journal.csv` — one row per trade (copy from `journal.example.csv`; gitignored)
