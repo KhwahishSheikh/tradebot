@@ -1,0 +1,15 @@
+{
+  "_comment": "Your trading rules. Every delta-* tool reads this file. Change numbers here, not in code.",
+  "risk_per_trade_pct": 1.0,
+  "max_leverage": 3,
+  "max_open_positions": 2,
+  "daily_loss_limit_pct": 3.0,
+  "min_liq_buffer_x": 2.0,
+  "min_reward_risk": 1.5,
+  "taker_fee_pct": 0.05,
+  "maker_fee_pct": 0.02,
+  "funding_blackout_minutes": 15,
+  "allowed_symbols": ["BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "DOGEUSD", "XAUTUSD"],
+  "trading_window_uk": {"days": ["Mon", "Tue", "Wed", "Thu", "Fri"], "start": "08:00", "end": "17:00"},
+  "watchlist": ["BTCUSD", "ETHUSD", "SOLUSD", "XRPUSD", "XAUTUSD"]
+}

@@ -16,6 +16,7 @@ config/local.yaml
 *.duckdb.wal
 *.parquet
 delta-assistant/journal.csv
+delta-assistant/alerts.json
 
 # --- Python ---
 .venv/
@@ -32,6 +33,7 @@ node_modules/
 
 # --- Editor / OS / local tools ---
 .DS_Store
-.claude/
+.claude/*
+!.claude/skills/
 .vscode/
 .idea/

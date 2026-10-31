@@ -39,11 +39,16 @@ no Telegram, no dashboards, no servers. Not financial advice — flag risk hones
 - "Approve? (yes / no / modify)"
 
 ## Strategies
-_Exact rules written in TICKET 4._
+Exact rules live in the docstring of `entry.py` (trend pullback; London opening-range breakout).
+Numbers for risk live in `rules.json`. Change either only with the user, and say what changed.
 
-## Commands
-- `scan` → TICKET 3 · `check` → TICKET 6 · `review` → TICKET 7
+## Commands (skills in ../.claude/skills/)
+- `/delta-scanner` scan · `/delta-entry` setups · `/delta-exit` open-trade plan
+- `/delta-risk` PASS/BLOCK · `/delta-budget` size · `/delta-broker` orders (dry-run, user's yes)
+- `/delta-timemachine` replay + Monte Carlo · `/delta-alerts` price alerts · `/delta-news` headlines
 
 ## Files
-- `trade.py` — order script (TICKET 2)
-- `journal.csv` — one row per trade (header already in place)
+- `delta_common.py` shared client/indicators · `rules.json` risk rules
+- `scan.py` `entry.py` `exit.py` `risk.py` `size.py` `timemachine.py` `alerts.py` `news.py`
+- `trade.py` — the ONLY order script; dry-run unless `--confirm`
+- `journal.csv` — one row per trade (copy from `journal.example.csv`; gitignored)
