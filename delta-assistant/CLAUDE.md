@@ -39,7 +39,8 @@ no Telegram, no dashboards, no servers. Not financial advice — flag risk hones
 - "Approve? (yes / no / modify)"
 
 ## Strategies
-Exact rules live in the docstring of `entry.py` (trend pullback; London opening-range breakout).
+Trend pullback + its A/B/C quality grade live in `strategy.py` (shared by `entry.py` and `backtest.py`);
+London breakout lives in `entry.py`. 60-day backtest (31 Oct 2026): base -0.11R/trade, grade A+B +0.09R — unproven.
 Numbers for risk live in `rules.json`. Change either only with the user, and say what changed.
 
 ## Commands (skills in ../.claude/skills/)
@@ -50,6 +51,6 @@ Numbers for risk live in `rules.json`. Change either only with the user, and say
 
 ## Files
 - `delta_common.py` shared client/indicators · `rules.json` risk rules
-- `scan.py` `entry.py` `exit.py` `risk.py` `size.py` `timemachine.py` `alerts.py` `news.py` `analyst.py` `whales.py`
+- `scan.py` `entry.py` `exit.py` `risk.py` `size.py` `timemachine.py` `alerts.py` `news.py` `analyst.py` `whales.py` `strategy.py` `backtest.py`
 - `trade.py` — the ONLY order script; dry-run unless `--confirm`
 - `journal.csv` — one row per trade (copy from `journal.example.csv`; gitignored)

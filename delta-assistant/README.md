@@ -9,7 +9,8 @@ Claude reads the market and your account; **orders only go out through `trade.py
 | Skill | Script | What it does |
 |---|---|---|
 | `/delta-scanner` | `scan.py` | Trend (EMA 20/50/200) on 4h/1h/15m, RSI, ATR, volume, support/resistance |
-| `/delta-entry` | `entry.py` | Written strategy rules: **trend pullback** and **London opening-range breakout** |
+| `/delta-entry` | `entry.py` + `strategy.py` | Written rules: **trend pullback** (graded A/B/C by volume, futures data, room to target) and **London opening-range breakout** |
+| — | `backtest.py` | Replays the trend-pullback rule over past data (same code as live): trades, win %, avg R by grade |
 | `/delta-exit` | `exit.py` | Exit plan for open positions: missing stop, break-even, trailing, trend flip, funding |
 | `/delta-risk` | `risk.py` | **PASS / BLOCK** against `rules.json` (risk %, leverage, R:R, liquidation buffer, daily loss) |
 | `/delta-budget` | `size.py` | Contracts that fit your risk, margin, liquidation estimate |
@@ -35,6 +36,7 @@ Create API keys with **trading permission only, no withdrawals**. Edit your limi
 
 ```bash
 python3 entry.py                                   # any setups on the watchlist?
+python3 backtest.py --days 60                      # how did the rule do recently?
 python3 risk.py BTCUSD buy --stop 76800 --target 78700
 python3 size.py ETHUSD sell --stop 2290 --balance 200
 python3 trade.py buy XRPUSD --contracts 1 --stop 1.20 --target 1.40     # dry run

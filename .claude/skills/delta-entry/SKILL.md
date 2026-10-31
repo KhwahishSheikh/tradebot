@@ -8,8 +8,12 @@ description: Check whether the written Delta strategy rules (trend pullback, Lon
 Run `python3 entry.py [SYMBOLS]` in `delta-assistant/` (reads the account read-only via .env keys;
 or `--balance N` offline). The exact rules are in the docstring at the top of `entry.py`:
 
-- **Trend pullback**: 4h and 1h trend agree, 15m pulls back to EMA20 and turns, RSI in range,
-  stop beyond the 12-bar 15m extreme (>= 1 ATR), target 2R.
+- **Trend pullback** (exact rules in `strategy.py`): 4h and 1h trend agree, 15m pulls back to EMA20
+  and turns, RSI in range, stop beyond the 12-bar 15m extreme (>= 1 ATR), target 2R.
+  Graded: **A** = volume + futures + room to target, **B** = volume + futures, **C** = watch only.
+  Show each check as ok/NO. Only A/B get a ticket. The base rule LOST money in the 60-day backtest
+  (-0.11R/trade); A+B was +0.09R/trade but unproven — say so, and suggest testnet first.
+  Re-test with `python3 backtest.py [SYMBOLS] --days 60`.
 - **London opening-range breakout**: 09:00-12:00 UK weekdays, break of the 08:00-09:00 UK range with
   volume, not against the 4h trend, stop at range middle, target 2R.
 
